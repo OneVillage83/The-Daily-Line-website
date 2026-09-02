@@ -2,6 +2,64 @@
 
 Material repository changes are logged here in chronological order. Architecture decisions that constrain future work also receive an ADR.
 
+## 2026-09-02 16:28 PDT — SEO + GEO/AEO discoverability architecture added
+
+### Architecture decision
+
+SEO plus generative/answer-engine discoverability is now a first-class cross-cutting website architecture requirement rather than a post-launch marketing task.
+
+Added:
+
+- `docs/architecture/SEO_GEO_DISCOVERABILITY_V1.md`;
+- `docs/decisions/ADR-0002-discoverability-is-core-architecture.md`.
+
+### Core strategy
+
+The website will pursue discoverability through unique, useful, primary-source Daily Line material rather than speculative LLM-ranking tricks. The long-term public authority corpus can include approved methodology, glossary, research/model-audit content, canonical pre-event prediction evidence, results, corrections, and reproducible performance aggregates derived from immutable website publication evidence.
+
+The strategy explicitly rejects:
+
+- machine-only doorway pages;
+- keyword stuffing;
+- mass-generated permutations for every possible AI/search query;
+- fabricated reviews, citations, ratings, performance, or external authority;
+- making paid/licensed data public solely for crawler access;
+- treating `llms.txt` or another AI-specific text file as a required/ranking-authoritative mechanism without a later evidence review;
+- assuming search-discovery crawler controls and provider model-training controls are the same policy decision.
+
+### Cross-gate integration
+
+Updated `docs/architecture/WEBSITE_ARCHITECTURE_V1.md` so discoverability prerequisites are carried before W9:
+
+- W1 now owns semantic/crawlable public information architecture, metadata primitives, canonical public URL conventions, and reusable evidence presentation patterns;
+- W4 must preserve immutable fields needed for approved replayable public-safe evidence projections;
+- W5/W6 must preserve stable metric/entity terminology across public and member surfaces;
+- W7 must define canonical/indexing behavior and HTML companion strategy for artifacts where binaries alone are a weak public source surface;
+- W8 must freeze reproducible settlement/performance semantics before broad discoverable performance claims;
+- W9 is now explicitly **SEO + GEO/AEO discoverability, content & analytics** and owns crawler policy, sitemaps, canonical/redirect behavior, metadata, supported structured data, internal linking, public authority/evidence surfaces, search-console/webmaster integration, AI/search referral instrumentation, benchmark-query observability, and provider-guidance validation;
+- W12 must prove production crawl/index behavior and continued protection of private/member surfaces.
+
+### Repository handoff/status integration
+
+Updated:
+
+- `README.md` with the discoverability architecture and revised gate names/responsibilities;
+- `CODEX_START_HERE.md` so coding agents must read the new architecture/ADR and preserve the cross-gate requirements;
+- `docs/status/WEBSITE_STATUS.md` with the accepted decision, completed documentation work, and the new W1/W4 requirements.
+
+The discoverability architecture does not add a new W0 implementation blocker. It defines authority for future gate design. W1 begins the prerequisites; W9 owns the dedicated implementation/freeze pass; W12 owns production validation.
+
+### External-guidance baseline checked
+
+The architecture was checked against current official provider guidance on 2026-09-02 before being committed.
+
+Relevant current guidance included:
+
+- OpenAI: public sites can appear in ChatGPT search; `OAI-SearchBot` access matters for content to be included in summaries/snippets; search placement is not guaranteed; OpenAI documents search discovery and `GPTBot` training controls separately;
+- Google Search: ordinary SEO fundamentals remain foundational for AI Overviews/AI Mode; no special AI-specific schema or machine-readable file is required; Google's 2026 generative-AI guidance emphasizes unique, non-commodity, people-first content and warns against GEO/AEO gimmicks and scaled low-value query targeting.
+
+These external rules are not frozen repository truth. W9 implementation and W12 launch review must revalidate current official documentation because crawler names, reporting, and product behavior can change.
+
 ## 2026-09-02 — W0 repository/CI hardening
 
 ### Repository authority finalized from local proof
