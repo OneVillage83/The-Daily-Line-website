@@ -1,6 +1,6 @@
 # Website Status
 
-**Last updated:** 2026-09-02  
+**Last updated:** 2026-09-02 16:28 PDT  
 **Current gate:** W0 — Repository & engineering foundation  
 **Freeze status:** NOT READY — LOCAL PROOF PASSED; CI/TOOLCHAIN CLEANUP IN PROGRESS
 
@@ -17,6 +17,13 @@
 - dynamic sport preview routes added;
 - Publication Contract V1 draft added;
 - ADR-0001 accepted for sealed publication boundary;
+- SEO + GEO/AEO discoverability architecture V1 added;
+- ADR-0002 accepted: discoverability is a cross-cutting core architecture requirement rather than post-launch marketing cleanup;
+- W1/W4/W7/W8/W9/W12 responsibilities updated so crawlability, public-safe evidence, reproducible performance, canonical artifact strategy, dedicated discoverability implementation, and launch crawl/index proof are carried by the correct gates;
+- explicit policy added that public search/AI discoverability cannot bypass member entitlements/licensing;
+- explicit policy added to prioritize unique primary-source evidence and human usefulness over doorway pages, mass query permutations, fabricated authority, or speculative LLM-specific hacks;
+- explicit policy added to separate provider search-discovery crawler controls from provider model-training crawler controls where applicable;
+- `llms.txt` or similar AI-specific files are not treated as required/ranking-authoritative without later evidence review;
 - environment-variable contract stubbed without secrets;
 - documentation/development logging policy established;
 - local dependency installation completed under Node v24.11.1;
@@ -94,12 +101,27 @@ W1 must add browser/component accessibility testing appropriate to real interact
 5. reproduce the post-migration proof in CI;
 6. perform W0 freeze review and record the exact evidence/commit SHA.
 
+The newly accepted discoverability architecture does not add a new W0 freeze blocker because it is documentation/architecture authority for future gates. Implementation proof begins in W1 and is completed in the dedicated W9 pass plus W12 production validation.
+
 ## Next architecture pass after W0 proof
 
-**W1 — Design system & public shell**
+**W1 — Design system, semantic public shell & discoverability prerequisites**
 
 W1 should formalize tokens, typography, responsive behavior, accessibility, navigation, public information architecture, reusable cards/tables/data-density modes, loading/empty/error states, and the visual relationship between public editorial pages and the member command center.
+
+W1 must now also formalize the discoverability prerequisites required by ADR-0002:
+
+- semantic/crawlable public navigation and content hierarchy;
+- canonical public URL conventions;
+- metadata primitives;
+- reusable evidence/table/chart patterns with textual interpretation;
+- stable The Daily Line and Daily sport entity/metric terminology;
+- public templates that remain useful in rendered HTML without depending on opaque client-only state.
+
+W1 does not need to finish the entire SEO/GEO implementation; W9 owns the dedicated crawler, sitemap, canonical, structured-data, content-taxonomy, referral-measurement, and provider-validation pass.
 
 ## Important dependency with sport repos
 
 W4 cannot freeze until the website contract has real compatibility fixtures from Daily-MLB, Daily-NFL, and Daily-NCAAF. The website can build the consumer architecture now, but the contract must be proven in both producer and consumer repositories before launch.
+
+ADR-0002 adds one further W4 requirement: producer/consumer contract design must preserve the immutable fields needed for an approved replayable public-safe evidence projection. This does not mean paid/licensed fields automatically become public; the public projection remains a website product-policy decision.
