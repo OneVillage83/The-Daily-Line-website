@@ -1,12 +1,13 @@
 import Link from "next/link";
 import type { DailySport } from "@/lib/sports";
+import { StatusChip } from "@/components/status-chip";
 
 export function SportCard({ sport }: { sport: DailySport }) {
   return (
     <article className="sport-card">
       <div className="sport-card-topline">
         <span className="sport-code">{sport.shortName}</span>
-        <span className="status-chip">Architecture in progress</span>
+        <StatusChip tone="neutral">Publication adapter pending</StatusChip>
       </div>
       <div>
         <p className="eyebrow">{sport.leagueName}</p>
