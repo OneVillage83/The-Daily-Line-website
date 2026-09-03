@@ -1,19 +1,33 @@
 import type { Metadata } from "next";
+import { SITE, getSiteUrl } from "@/lib/site";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
+  metadataBase: getSiteUrl(),
   title: {
-    default: "The Daily Line | Sports Intelligence",
-    template: "%s | The Daily Line",
+    default: `${SITE.name} | Sports Intelligence`,
+    template: `%s | ${SITE.name}`,
   },
-  description: "Data-driven sports predictions, matchup research, market context, and transparent performance tracking.",
+  description: SITE.description,
+  applicationName: SITE.name,
+  openGraph: {
+    type: "website",
+    siteName: SITE.name,
+    title: `${SITE.name} | Sports Intelligence`,
+    description: SITE.description,
+    url: "/",
+  },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <a className="skip-link" href="#main-content">
+          Skip to main content
+        </a>
+        {children}
+      </body>
     </html>
   );
 }
