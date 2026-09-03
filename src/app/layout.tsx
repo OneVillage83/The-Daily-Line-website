@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { SITE, getSiteUrl } from "@/lib/site";
 import "./globals.css";
+import "./w1-analytics.css";
 
 export const metadata: Metadata = {
   metadataBase: getSiteUrl(),
