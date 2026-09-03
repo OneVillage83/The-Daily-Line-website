@@ -2,6 +2,57 @@
 
 Material repository changes are logged here in chronological order. Architecture decisions that constrain future work also receive an ADR.
 
+## 2026-09-02 — W0 formally frozen; W1 activated
+
+### Final local reproduction
+
+After the unsuccessful ESLint 10 experiment, the maintainer restored `package.json` and `package-lock.json` to repository authority, pulled `main`, and ran the final W0 reproduction on the exact committed dependency graph.
+
+Evidence:
+
+- `npm ci` completed successfully under Node v24.11.1;
+- `npm audit --audit-level=high` reported 0 vulnerabilities;
+- `npm ls` confirmed the committed lint graph: `eslint@9.39.5`, `eslint-config-next@16.3.3`, `eslint-plugin-react@7.37.5`;
+- `npm run verify` passed end to end;
+- repository format checks passed for 31 text files;
+- TypeScript passed;
+- ESLint passed on the committed compatible stack;
+- Node tests passed 9/9;
+- production Next.js build passed and generated `/`, `/dashboard`, `/sports/mlb`, `/sports/nfl`, and `/sports/ncaaf` plus framework routes;
+- the previous parent-directory Turbopack root warning was absent;
+- final `git status` reported `nothing to commit, working tree clean` and the branch up to date with `origin/main`.
+
+### Matching CI proof
+
+GitHub Actions CI #18 / run `33722166331` completed successfully on exact evidence commit:
+
+`c0bd7fa9bc48e96d4c8b7a12ccd68f2b2aec8084`
+
+This gives W0 matching local and clean-checkout CI proof on the same committed repository state.
+
+### Freeze decision
+
+W0 — Repository & engineering foundation is **FROZEN**.
+
+Added `docs/status/W0_FREEZE_2026-09-02.md` as the durable freeze record containing:
+
+- exact evidence commit and CI run;
+- local reproduction evidence;
+- ESLint 10 compatibility exception;
+- frozen W0 capabilities;
+- deliberately deferred later-gate work;
+- W1 handoff constraints.
+
+Updated `docs/status/WEBSITE_STATUS.md` to make W1 the active gate.
+
+### W1 handoff
+
+W1 — Design system, semantic public shell & discoverability prerequisites is now active.
+
+W1 inherits all W0 invariants, especially the sealed publication boundary, no-direct-pipeline-database rule, server-side authorization principle, no-fabricated-data rule, immutable evidence/replay direction, CI requirements, and documentation discipline.
+
+W1 must add the complete reusable design-system/public-shell layer, responsive behavior, semantic/canonical/metadata primitives, representative application states, and browser/component accessibility coverage before its own freeze review.
+
 ## 2026-09-02 23:05 PDT — W0 CI passed; ESLint 10 compatibility exception recorded
 
 ### CI evidence
