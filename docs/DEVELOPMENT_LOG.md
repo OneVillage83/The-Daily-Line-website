@@ -2,6 +2,41 @@
 
 Material repository changes are logged here in chronological order. Architecture decisions that constrain future work also receive an ADR.
 
+## 2026-09-02 23:05 PDT — W0 CI passed; ESLint 10 compatibility exception recorded
+
+### CI evidence
+
+GitHub Actions CI run #9 completed successfully on `main` at commit `af22c9cef6f98a238392d4d0de1b6a173311a506` from a clean checkout using the committed lockfile. The workflow passed `npm ci`, high/critical audit gating, format checks, TypeScript, ESLint, Node smoke tests, and the production Next.js build.
+
+### ESLint 10 migration attempt
+
+The maintainer tested `eslint@10.9.0` locally instead of leaving the ESLint 9 support warning uninvestigated.
+
+Results:
+
+- npm emitted peer-resolution override warnings during the ESLint 10 install;
+- `npm audit --audit-level=high` still reported 0 vulnerabilities;
+- formatting and TypeScript checks passed;
+- all 9 Node smoke tests passed;
+- the production Next.js build passed and the prior parent-lockfile/Turbopack root warning was absent;
+- `npm run lint` failed while loading `react/display-name` because the React ESLint plugin uses a rule-context API that changed in ESLint 10;
+- `npm run verify` therefore failed at the lint step as expected.
+
+### Upstream compatibility finding
+
+Current Next.js 16.3.3 `eslint-config-next` depends on `eslint-plugin-react`. The current React plugin line advertises ESLint peer support through ESLint 9 rather than ESLint 10. The actual local crash confirms that forcing the major would produce a broken lint gate.
+
+Decision:
+
+- retain the committed ESLint 9-compatible stack temporarily;
+- do not use `--force`, `--legacy-peer-deps`, or an unproven compatibility shim solely to claim ESLint 10 support;
+- treat this as a documented **dev-tooling compatibility exception**, not as a production runtime exception;
+- keep Dependabot enabled and re-evaluate when the Next.js/React lint chain publishes verified ESLint 10 compatibility, and at minimum before W12 launch freeze.
+
+### Remaining W0 step
+
+The maintainer must discard only the uncommitted ESLint 10 package/lockfile experiment, run `npm ci`, then `npm audit --audit-level=high` and `npm run verify` on the exact committed graph. A clean `git status` plus that passing local reproduction will permit the W0 freeze review.
+
 ## 2026-09-02 16:28 PDT — SEO + GEO/AEO discoverability architecture added
 
 ### Architecture decision
@@ -86,11 +121,11 @@ These external rules are not frozen repository truth. W9 implementation and W12 
 
 ### Supported-toolchain finding
 
-The local install resolved ESLint 9.39.5 and emitted an unsupported-version warning. Upstream ESLint 9 reached end-of-life on 2026-08-06. W0 therefore remains open pending migration to a supported ESLint 10 release (preferred) or a narrowly documented temporary exception if Next.js compatibility prevents migration.
+The local install resolved ESLint 9.39.5 and emitted an unsupported-version warning. Upstream ESLint 9 reached end-of-life on 2026-08-06. W0 therefore remained open pending an attempted migration to a supported ESLint 10 release or a narrowly documented temporary exception if compatibility prevented migration. That migration was subsequently attempted and the compatibility exception is now documented above.
 
 ### Freeze decision
 
-W0 remains **NOT READY** until a clean `main` CI run exists, the supported ESLint-major issue is resolved, the local parent-lockfile/Turbopack warning is confirmed gone, and post-migration local + CI proof agree.
+W0 remained **NOT READY** until a clean `main` CI run existed, the supported ESLint-major issue was resolved or documented, the local parent-lockfile/Turbopack warning was confirmed gone, and local + CI proof agreed. Clean CI has now passed; only the final local reproduction on the committed graph remains.
 
 ## 2026-09-02 — W0 local proof recorded
 
@@ -117,7 +152,7 @@ These exact files were subsequently committed as repository authority during the
 
 ### Local-path warning
 
-The build also detected a separate `package-lock.json` in the parent directory outside the Git repository. This was consistent with the earlier accidental `npm` invocation from the parent directory. The parent lockfile is not website repository authority. W0 requires one clean local rebuild after that stray artifact is removed to record that the warning has disappeared.
+The build also detected a separate `package-lock.json` in the parent directory outside the Git repository. This was consistent with the earlier accidental `npm` invocation from the parent directory. The parent lockfile is not website repository authority. A later production build completed without the warning after the stray parent artifact was absent.
 
 ### Freeze decision at local checkpoint
 
