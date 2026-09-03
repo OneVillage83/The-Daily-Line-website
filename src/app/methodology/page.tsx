@@ -86,7 +86,7 @@ export default function MethodologyPage() {
             </div>
             <div className="definition-row">
               <dt>Data cutoff</dt>
-              <dd>The latest information time allowed into the relevant prediction state under that sport's point-in-time rules.</dd>
+              <dd>The latest information time allowed into the relevant prediction state under that sport-specific point-in-time policy.</dd>
             </div>
             <div className="definition-row">
               <dt>Settlement</dt>
