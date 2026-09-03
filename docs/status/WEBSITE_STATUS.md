@@ -1,8 +1,8 @@
 # Website Status
 
-**Last updated:** 2026-09-02 16:28 PDT  
+**Last updated:** 2026-09-02 23:05 PDT  
 **Current gate:** W0 — Repository & engineering foundation  
-**Freeze status:** NOT READY — LOCAL PROOF PASSED; CI/TOOLCHAIN CLEANUP IN PROGRESS
+**Freeze status:** NOT READY — CLEAN CI PASSED; FINAL LOCAL REPRODUCTION PENDING
 
 ## Completed
 
@@ -29,7 +29,7 @@
 - local dependency installation completed under Node v24.11.1;
 - local install reported 0 vulnerabilities;
 - local `npm run typecheck` passed;
-- local `npm run lint` passed;
+- local `npm run lint` passed on the committed ESLint 9/Next.js 16.3.3-compatible stack;
 - local `npm run build` passed and produced `/`, `/dashboard`, `/sports/mlb`, `/sports/nfl`, and `/sports/ncaaf` plus framework routes;
 - production build confirmed dynamic sport routes are statically generated from the sport registry;
 - repository-local `package-lock.json` committed as dependency-resolution authority;
@@ -42,27 +42,31 @@
 - Dependabot added for weekly npm and GitHub Actions update proposals;
 - dependency/supply-chain security policy added;
 - Codex/agent handoff added in `CODEX_START_HERE.md`;
-- install-script warnings are explicitly governed by review policy rather than blanket approval.
+- install-script warnings are explicitly governed by review policy rather than blanket approval;
+- clean GitHub Actions run #9 completed successfully on commit `af22c9cef6f98a238392d4d0de1b6a173311a506` using the committed lockfile;
+- parent-directory stray lockfile was confirmed absent, and a subsequent production build completed without the earlier Turbopack root warning;
+- ESLint 10 migration was tested locally and rejected because the current Next.js 16.3.3 lint dependency chain is not ESLint-10-compatible.
 
-## Local validation evidence — 2026-08-31
+## Local validation evidence — 2026-08-31 / 2026-09-02
 
 Environment and commands reported by the maintainer:
 
 - PowerShell 7.6.5;
 - Node v24.11.1;
-- `npm install` -> success, 359 packages audited, 0 vulnerabilities;
-- `npm run typecheck` -> success;
-- `npm run lint` -> success;
-- `npm run build` -> success under Next.js 16.3.3 / Turbopack;
-- static output generated successfully for the public home, dashboard, and all three initial sport pages.
+- dependency installation succeeded;
+- `npm audit --audit-level=high` -> 0 vulnerabilities;
+- `npm run format:check` -> passed;
+- `npm run typecheck` -> passed;
+- `npm test` -> 9/9 passed;
+- `npm run build` -> passed under Next.js 16.3.3 / Turbopack;
+- production build after removal/absence of the stray parent lockfile produced no Turbopack root warning;
+- ESLint 10.9.0 installation produced peer-resolution overrides and `npm run lint` failed in `eslint-plugin-react` with an ESLint 10 rule-context API incompatibility.
 
-This satisfies the local compile/type/lint/build checkpoint.
+## Clean CI evidence
 
-## Current W0 blockers
+GitHub Actions CI run #9 on `main` / commit `af22c9cef6f98a238392d4d0de1b6a173311a506` completed successfully.
 
-### 1. Clean CI proof
-
-The complete GitHub Actions verification workflow must finish successfully on `main` from the committed lockfile. The workflow intentionally runs:
+The workflow reproduced from a clean checkout:
 
 1. `npm ci`;
 2. `npm audit --audit-level=high`;
@@ -72,19 +76,28 @@ The complete GitHub Actions verification workflow must finish successfully on `m
 6. `npm test`;
 7. `npm run build`.
 
-A workflow file existing is not considered CI proof.
+This satisfies the clean-repository CI proof requirement for W0.
 
-### 2. ESLint supported-major migration
+## ESLint compatibility exception
 
-The first local install resolved ESLint 9.39.5. ESLint 9 reached upstream end-of-life on 2026-08-06. Although the current lint gate passes, W0 should not formally freeze on an unsupported direct toolchain major.
+ESLint 9 reached upstream end-of-life on 2026-08-06. A migration to ESLint 10.9.0 was attempted rather than ignored.
 
-Preferred resolution: migrate to a supported ESLint 10 release, regenerate the lockfile, and reproduce lint + full verification locally and in CI. A temporary exception is possible only if compatibility prevents migration and must have an explicit expiry date.
+The migration is currently blocked by the framework-recommended lint dependency chain:
 
-### 3. Parent-directory Turbopack warning confirmation
+- `eslint-config-next@16.3.3` declares ESLint `>=9.0.0`, but depends on `eslint-plugin-react`;
+- the current `eslint-plugin-react` line advertises peer support through ESLint 9, not ESLint 10;
+- the actual local ESLint 10 run failed while loading `react/display-name` because the plugin uses the pre-ESLint-10 rule-context API.
 
-The original local build found a stray `E:\The-Daily-Line-Website\package-lock.json` outside the actual repository. The repository-local lockfile is now authoritative, but W0 should record one clean local build after the stray parent lockfile is removed to prove the Turbopack root warning is gone.
+Decision for W0: retain the committed ESLint 9-compatible stack as a **temporary dev-tooling compatibility exception**. Do not use `--force`, `--legacy-peer-deps`, or compatibility shims solely to claim an ESLint 10 migration.
 
-Do not change production architecture merely to suppress a warning caused by a local parent-directory artifact.
+Risk controls:
+
+- ESLint is development/build tooling, not a production runtime dependency;
+- `npm audit --audit-level=high` reports 0 vulnerabilities on the current lockfile;
+- Dependabot remains enabled so compatible Next.js / React lint-chain updates are surfaced;
+- the exception must be re-evaluated when Next.js or `eslint-plugin-react` publishes a verified ESLint 10-compatible chain, and at minimum during the next dependency-maintenance pass before W12 launch freeze.
+
+This compatibility exception is documented and is **not a W0 freeze blocker** by itself.
 
 ## W0 test-layer scope
 
@@ -94,14 +107,13 @@ W1 must add browser/component accessibility testing appropriate to real interact
 
 ## Remaining W0 work
 
-1. obtain a successful clean GitHub Actions run on `main`;
-2. migrate ESLint 9 -> supported ESLint 10 and update `package-lock.json`;
-3. re-run the complete local verification command set after the ESLint migration;
-4. confirm the stray parent-lockfile Turbopack warning is gone on a clean local build;
-5. reproduce the post-migration proof in CI;
-6. perform W0 freeze review and record the exact evidence/commit SHA.
+1. restore the maintainer's local working tree from the unsuccessful ESLint 10 experiment to the committed `package.json` / `package-lock.json`;
+2. run `npm ci` to reproduce the exact committed dependency graph locally;
+3. run `npm audit --audit-level=high` and `npm run verify` locally on that exact graph;
+4. confirm `git status` is clean;
+5. perform W0 freeze review and record the exact evidence/commit SHA.
 
-The newly accepted discoverability architecture does not add a new W0 freeze blocker because it is documentation/architecture authority for future gates. Implementation proof begins in W1 and is completed in the dedicated W9 pass plus W12 production validation.
+The accepted discoverability architecture does not add a new W0 freeze blocker because it is documentation/architecture authority for future gates. Implementation proof begins in W1 and is completed in the dedicated W9 pass plus W12 production validation.
 
 ## Next architecture pass after W0 proof
 
@@ -109,7 +121,7 @@ The newly accepted discoverability architecture does not add a new W0 freeze blo
 
 W1 should formalize tokens, typography, responsive behavior, accessibility, navigation, public information architecture, reusable cards/tables/data-density modes, loading/empty/error states, and the visual relationship between public editorial pages and the member command center.
 
-W1 must now also formalize the discoverability prerequisites required by ADR-0002:
+W1 must also formalize the discoverability prerequisites required by ADR-0002:
 
 - semantic/crawlable public navigation and content hierarchy;
 - canonical public URL conventions;
@@ -122,6 +134,6 @@ W1 does not need to finish the entire SEO/GEO implementation; W9 owns the dedica
 
 ## Important dependency with sport repos
 
-W4 cannot freeze until the website contract has real compatibility fixtures from Daily-MLB, Daily-NFL, and Daily-NCAAF. The website can build the consumer architecture now, but the contract must be proven in both producer and consumer repositories before launch.
+W4 cannot freeze until the website contract has real compatibility fixtures from Daily-MLB, Daily-NFL, Daily-NCAAF. The website can build the consumer architecture now, but the contract must be proven in both producer and consumer repositories before launch.
 
 ADR-0002 adds one further W4 requirement: producer/consumer contract design must preserve the immutable fields needed for an approved replayable public-safe evidence projection. This does not mean paid/licensed fields automatically become public; the public projection remains a website product-policy decision.
