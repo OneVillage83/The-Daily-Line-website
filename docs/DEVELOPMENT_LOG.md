@@ -2,6 +2,101 @@
 
 Material repository changes are logged here in chronological order. Architecture decisions that constrain future work also receive an ADR.
 
+## 2026-09-02 — W1 design system / semantic public shell checkpoint
+
+### Design-system authority
+
+Added `docs/architecture/DESIGN_SYSTEM_V1.md` to define W1 as a reusable product-system pass rather than one-off page styling.
+
+The working design system now documents:
+
+- modern sports-intelligence publication + professional analysis-terminal visual thesis;
+- brand yellow versus semantic-state color roles;
+- typography, spacing, density, layout, responsive, and motion rules;
+- reusable shell/navigation/action/status/card/table/evidence patterns;
+- loading, empty, unavailable, stale, gated, error, and correction requirements;
+- accessibility requirements including visible focus, keyboard use, reduced motion, touch targets, non-color status cues, and future browser/component coverage;
+- stable public URL, canonical, metadata, and conservative indexability policy;
+- stable terminology for model probability, market/implied probability, Recommendation Gate, publication time, data cutoff, settlement, and corrections.
+
+### Implemented W1 primitives
+
+Added/refactored:
+
+- central semantic CSS token layer in `src/app/globals.css`;
+- global skip link and `#main-content` targets;
+- visible `:focus-visible` styling;
+- reduced-motion handling;
+- responsive public navigation that remains available on compact/mobile layouts;
+- `SiteFooter`;
+- `PageHeader`;
+- semantic `StatusChip` variants;
+- reusable `EmptyState`;
+- `SportCard` onto the shared status system;
+- central `src/lib/site.ts` site/metadata helper.
+
+### Stable public information architecture
+
+Added real semantic routes rather than relying only on homepage anchors:
+
+- `/sports`;
+- `/methodology`;
+- `/performance`;
+- `/membership`.
+
+Also added a branded semantic `not-found` page and refactored the homepage, dashboard, and dynamic sport pages onto the W1 shell.
+
+The new public pages intentionally avoid invented model formulas, pricing, performance, picks, subscriber data, or access state.
+
+### Discoverability/indexability behavior
+
+The central metadata helper now establishes canonical URLs, Open Graph basics, and explicit robots intent.
+
+Current conservative policy:
+
+- `/performance` is `noindex` until W8 produces settlement-backed public performance authority;
+- `/dashboard` is `noindex`;
+- dynamic sport pages remain `noindex` while they are publication-empty shells;
+- substantive public architecture pages can remain crawlable/indexable.
+
+This preserves ADR-0002 without creating thin or fabricated authority surfaces.
+
+### Test expansion
+
+Expanded the Node source/contract tests to cover:
+
+- skip-link behavior and main target;
+- semantic primary navigation and stable IA;
+- focus-visible and reduced-motion CSS contracts;
+- all major W1 public surfaces;
+- central canonical/Open Graph/robots metadata primitives;
+- noindex policy for thin/private-adjacent pages;
+- continued W0 Node/runtime/sport-registry/no-direct-SQLite guarantees.
+
+### CI feedback and correction
+
+The first full W1 refactor run failed at ESLint on two unescaped JSX apostrophes in the new Membership and Methodology copy. The lint rule was not disabled or bypassed; those two copy lines were corrected.
+
+GitHub Actions CI #45 / run `33724238548` then completed successfully on commit:
+
+`5def4cf820d197ca4ad263c2c4603b944e6dd253`
+
+The clean checkout passed:
+
+1. locked dependency installation;
+2. high/critical audit gate;
+3. repository formatting;
+4. TypeScript;
+5. ESLint;
+6. Node tests;
+7. production Next.js build.
+
+### Gate decision
+
+W1 remains **NOT READY** for freeze.
+
+Next W1 work is the formal data-state system, analytical metric/evidence/table primitives, rendered responsive review, browser/component accessibility automation, and final local + CI proof.
+
 ## 2026-09-02 — W0 formally frozen; W1 activated
 
 ### Final local reproduction
@@ -181,6 +276,8 @@ W0 remained **NOT READY** until a clean `main` CI run existed, the supported ESL
 ## 2026-09-02 — W0 local proof recorded
 
 ### Validation evidence from 2026-08-31 local run
+
+Environment and commands reported by the maintainer:
 
 - PowerShell 7.6.5;
 - Node v24.11.1;
