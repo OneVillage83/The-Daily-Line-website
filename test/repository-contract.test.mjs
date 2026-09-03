@@ -24,7 +24,7 @@ test("Node runtime remains on the supported Node 24 line", () => {
 });
 
 test("foundation verification scripts remain defined", () => {
-  for (const script of ["build", "lint", "typecheck", "test", "format:check", "verify"]) {
+  for (const script of ["build", "lint", "typecheck", "test", "test:rendered", "format:check", "verify"]) {
     assert.equal(typeof packageJson.scripts[script], "string", `${script} script must exist`);
   }
 });
