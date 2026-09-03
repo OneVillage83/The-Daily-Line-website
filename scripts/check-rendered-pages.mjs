@@ -4,15 +4,14 @@ import { spawn } from "node:child_process";
 const host = "127.0.0.1";
 const port = 3210;
 const baseUrl = `http://${host}:${port}`;
-const npmCommand = process.platform === "win32" ? "npm.cmd" : "npm";
 const configuredSiteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
 let stdout = "";
 let stderr = "";
 
 const server = spawn(
-  npmCommand,
-  ["run", "start", "--", "--hostname", host, "--port", String(port)],
+  process.execPath,
+  ["node_modules/next/dist/bin/next", "start", "--hostname", host, "--port", String(port)],
   {
     env: {
       ...process.env,
