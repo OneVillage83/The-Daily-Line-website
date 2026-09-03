@@ -5,6 +5,7 @@ const host = "127.0.0.1";
 const port = 3210;
 const baseUrl = `http://${host}:${port}`;
 const npmCommand = process.platform === "win32" ? "npm.cmd" : "npm";
+const configuredSiteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
 let stdout = "";
 let stderr = "";
@@ -56,6 +57,10 @@ async function fetchPage(path) {
   };
 }
 
+function expectedCanonical(path) {
+  return new URL(path, configuredSiteUrl).toString();
+}
+
 function assertCommonShell(html, path) {
   assert.match(html, /<html[^>]+lang="en"/i, `${path} must declare English document language`);
   assert.match(html, /href="#main-content"[^>]*>\s*Skip to main content/i, `${path} must expose the skip link`);
@@ -83,33 +88,23 @@ function assertNoIndex(html, path) {
 try {
   await waitForServer();
 
-  const publicPages = [
-    ["/sports", "https://thedailyline.bet/sports"],
-    ["/methodology", "https://thedailyline.bet/methodology"],
-    ["/membership", "https://thedailyline.bet/membership"],
-  ];
+  const publicPages = ["/sports", "/methodology", "/membership"];
 
-  for (const [path, canonical] of publicPages) {
+  for (const path of publicPages) {
     const { response, html } = await fetchPage(path);
     assert.equal(response.status, 200, `${path} must render successfully`);
     assertCommonShell(html, path);
-    assertCanonical(html, canonical, path);
+    assertCanonical(html, expectedCanonical(path), path);
     assertIndexable(html, path);
   }
 
-  const noIndexPages = [
-    ["/performance", "https://thedailyline.bet/performance"],
-    ["/dashboard", "https://thedailyline.bet/dashboard"],
-    ["/sports/mlb", "https://thedailyline.bet/sports/mlb"],
-    ["/sports/nfl", "https://thedailyline.bet/sports/nfl"],
-    ["/sports/ncaaf", "https://thedailyline.bet/sports/ncaaf"],
-  ];
+  const noIndexPages = ["/performance", "/dashboard", "/sports/mlb", "/sports/nfl", "/sports/ncaaf"];
 
-  for (const [path, canonical] of noIndexPages) {
+  for (const path of noIndexPages) {
     const { response, html } = await fetchPage(path);
     assert.equal(response.status, 200, `${path} must render successfully`);
     assertCommonShell(html, path);
-    assertCanonical(html, canonical, path);
+    assertCanonical(html, expectedCanonical(path), path);
     assertNoIndex(html, path);
   }
 
