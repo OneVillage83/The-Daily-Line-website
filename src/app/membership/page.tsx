@@ -33,7 +33,7 @@ export default function MembershipPage() {
             <p className="eyebrow">Access model</p>
             <h2 id="membership-model-heading">Identity and entitlement are different jobs.</h2>
             <p>
-              Signing in establishes who a user is. Entitlement establishes which sport or bundle that user may access. The website will keep those concerns separate so billing providers do not become the site's identity model.
+              Signing in establishes who a user is. Entitlement establishes which sport or bundle that user may access. The website will keep those concerns separate so billing providers do not become the website identity model.
             </p>
           </div>
           <div className="public-card-grid">
