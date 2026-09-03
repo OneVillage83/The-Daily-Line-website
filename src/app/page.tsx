@@ -1,25 +1,34 @@
 import Link from "next/link";
+import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { SportCard } from "@/components/sport-card";
+import { StatusChip } from "@/components/status-chip";
 import { DAILY_SPORTS } from "@/lib/sports";
 
 export default function Home() {
   return (
-    <main>
+    <main id="main-content">
       <div className="page-shell">
         <SiteHeader />
 
         <section className="hero">
           <div className="hero-copy">
             <p className="eyebrow">Sports intelligence, published daily</p>
-            <h1>See the data.<br /><span>Find the edge.</span></h1>
+            <h1>
+              See the data.
+              <br />
+              <span>Find the edge.</span>
+            </h1>
             <p className="hero-lede">
-              The Daily Line is being built as one transparent home for model forecasts, market context,
-              matchup research, recommendation gates, and long-run performance — across every Daily sport.
+              The Daily Line is being built as one transparent home for model forecasts, market context, matchup research, recommendation gates, and long-run performance—across every Daily sport.
             </p>
             <div className="hero-actions">
-              <Link className="button button-primary" href="#sports">Explore the first sports</Link>
-              <Link className="button button-secondary" href="#methodology">How the system works</Link>
+              <Link className="button button-primary" href="/sports">
+                Explore the first sports
+              </Link>
+              <Link className="button button-secondary" href="/methodology">
+                How the system works
+              </Link>
             </div>
           </div>
 
@@ -58,11 +67,18 @@ export default function Home() {
               <h2>One platform. Sport-native intelligence.</h2>
             </div>
             <p>
-              Shared product architecture underneath; sport-specific modeling and research where the game demands it.
+              Shared publication and product standards underneath; sport-specific modeling and research where the game demands it.
             </p>
           </div>
           <div className="sport-grid">
-            {DAILY_SPORTS.map((sport) => <SportCard key={sport.slug} sport={sport} />)}
+            {DAILY_SPORTS.map((sport) => (
+              <SportCard key={sport.slug} sport={sport} />
+            ))}
+          </div>
+          <div className="inline-actions">
+            <Link className="text-link" href="/sports">
+              View the sports architecture <span aria-hidden="true">→</span>
+            </Link>
           </div>
         </section>
 
@@ -71,10 +87,32 @@ export default function Home() {
             <p className="eyebrow">Publication architecture</p>
             <h2>A finished answer, not a half-built pipeline snapshot.</h2>
           </div>
-          <div className="principle-list">
-            <div><span>01</span><p><strong>Analyze.</strong> Each Daily sport completes its own point-in-time data, model, market, and recommendation workflow.</p></div>
-            <div><span>02</span><p><strong>Seal.</strong> The sport publishes one versioned, hashed artifact representing exactly what the website is allowed to show.</p></div>
-            <div><span>03</span><p><strong>Publish.</strong> The website ingests that artifact atomically, authorizes access, and preserves the published state for later grading.</p></div>
+          <div>
+            <div className="principle-list">
+              <div>
+                <span>01</span>
+                <p>
+                  <strong>Analyze.</strong> Each Daily sport completes its own point-in-time data, model, market, and recommendation workflow.
+                </p>
+              </div>
+              <div>
+                <span>02</span>
+                <p>
+                  <strong>Seal.</strong> The sport publishes one versioned, hashed artifact representing exactly what the website is allowed to show.
+                </p>
+              </div>
+              <div>
+                <span>03</span>
+                <p>
+                  <strong>Publish.</strong> The website ingests that artifact atomically, authorizes access, and preserves the published state for later grading.
+                </p>
+              </div>
+            </div>
+            <div className="inline-actions">
+              <Link className="text-link" href="/methodology">
+                Read the methodology architecture <span aria-hidden="true">→</span>
+              </Link>
+            </div>
           </div>
         </section>
 
@@ -87,15 +125,17 @@ export default function Home() {
             </p>
           </div>
           <div className="membership-actions">
-            <span className="status-chip">Commerce integration: planned</span>
-            <Link className="button button-primary" href="/dashboard">Preview the dashboard shell</Link>
+            <StatusChip tone="warning">Commerce integration: W3</StatusChip>
+            <Link className="button button-primary" href="/membership">
+              See membership architecture
+            </Link>
+            <Link className="text-link" href="/dashboard">
+              Preview member shell <span aria-hidden="true">→</span>
+            </Link>
           </div>
         </section>
 
-        <footer className="site-footer">
-          <span>© 2026 The Daily Line</span>
-          <span>Built for transparent sports analysis, not guarantees.</span>
-        </footer>
+        <SiteFooter />
       </div>
     </main>
   );
