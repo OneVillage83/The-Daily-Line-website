@@ -12,13 +12,16 @@ This file is the fast handoff for coding agents. It does not replace the authori
 6. `docs/decisions/ADR-0001-publication-boundary.md`
 7. `docs/decisions/ADR-0002-discoverability-is-core-architecture.md`
 8. `docs/status/WEBSITE_STATUS.md`
-9. `docs/DEVELOPMENT_LOG.md`
+9. `docs/status/W0_FREEZE_2026-09-02.md`
+10. `docs/DEVELOPMENT_LOG.md`
 
 ## Current phase
 
-W0 — Repository & engineering foundation.
+W1 — Design system, semantic public shell & discoverability prerequisites.
 
-Do not claim W0 frozen until both local and GitHub CI evidence are clean and all status blockers are resolved.
+W0 is formally frozen. Preserve its invariants and evidence unless a later documented architecture decision intentionally supersedes them.
+
+Do not reopen W0 casually. If a W1 change alters a frozen W0 assumption, document the reason, affected evidence, regression risk, and replacement proof.
 
 ## Required verification before proposing a completed change
 
@@ -39,6 +42,12 @@ For dependency/security work, also run:
 npm audit --audit-level=high
 ```
 
+## Current toolchain exception
+
+The committed lint graph intentionally remains on ESLint 9 because the current Next.js 16.3.3 / `eslint-plugin-react` chain failed a real ESLint 10.9.0 compatibility test.
+
+Do not use `--force`, `--legacy-peer-deps`, or an unproven shim to force ESLint 10. Re-evaluate only when the framework/plugin chain is verified compatible, and at minimum before W12 launch freeze.
+
 ## Non-negotiable product boundaries
 
 - The website consumes sealed, versioned publication artifacts.
@@ -56,6 +65,12 @@ npm audit --audit-level=high
 - Search-discovery crawler policy and provider model-training crawler policy are separate decisions where providers expose separate controls.
 - External search/AI provider behavior changes. Revalidate official guidance during W9 implementation and W12 launch review rather than hard-coding old assumptions.
 - Secrets remain server-only and out of source control.
+
+## W1 implementation priorities
+
+W1 must build reusable production primitives, not one-off page styling. It owns design tokens, typography, responsive behavior, semantic public navigation, canonical/metadata primitives, reusable cards/tables/status patterns, loading/empty/error/gated states, accessibility behavior, and the visual relationship between public editorial pages and the member command center.
+
+W1 must add browser/component accessibility coverage appropriate to interactive UI before W1 can freeze.
 
 ## Change discipline
 
