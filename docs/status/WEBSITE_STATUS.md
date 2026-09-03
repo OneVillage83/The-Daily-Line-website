@@ -1,10 +1,10 @@
 # Website Status
 
-**Last updated:** 2026-09-02 PDT  
+**Last updated:** 2026-09-03 PDT  
 **Current gate:** W1 — Design system, semantic public shell & discoverability prerequisites  
-**W1 freeze status:** NOT READY — FIRST IMPLEMENTATION CHECKPOINT PASSED CI  
-**Latest W1 checkpoint commit:** `5def4cf820d197ca4ad263c2c4603b944e6dd253`  
-**Latest W1 checkpoint CI:** GitHub Actions CI #45 / run `33724238548` — SUCCESS  
+**W1 freeze status:** NOT READY — ANALYTICAL UI + RENDERED VERIFICATION CHECKPOINT IN PROGRESS  
+**Latest proven W1 source checkpoint:** `ad9592861da261ab6e0bc07ea3819106872d0962`  
+**Latest proven W1 source CI:** GitHub Actions CI #56 / run `33735201562` — SUCCESS  
 **W0 freeze status:** FROZEN  
 **W0 evidence commit:** `c0bd7fa9bc48e96d4c8b7a12ccd68f2b2aec8084`  
 **W0 freeze record:** `docs/status/W0_FREEZE_2026-09-02.md`
@@ -20,7 +20,6 @@ Frozen W0 guarantees include:
 - repository-local lockfile authority;
 - clean-checkout GitHub Actions CI using `npm ci`;
 - audit, format, typecheck, lint, test, and production-build gates;
-- initial accessibility/source smoke tests;
 - sealed immutable publication-boundary architecture;
 - no direct website coupling to mutable Daily sport working databases;
 - server-side authorization principle;
@@ -44,143 +43,187 @@ Controls remain:
 
 This is a development-tooling compatibility exception, not a production-runtime exception and not a reopened W0 blocker.
 
-## W1 first implementation checkpoint — completed
+## W1 completed architecture and shell work
 
-The first W1 pass has moved the repository from a page-specific visual scaffold toward a reusable product system.
+### Design-system authority
 
-### Design-system architecture
+`docs/architecture/DESIGN_SYSTEM_V1.md` defines:
 
-Added `docs/architecture/DESIGN_SYSTEM_V1.md` defining:
-
-- product visual thesis: modern sports intelligence publication + professional analysis terminal;
-- brand usage and Daily Line yellow role;
-- semantic color tokens distinct from recommendation/result semantics;
-- typography roles for editorial, analytical, tabular, metadata, status, and numeric content;
-- 4px-derived spacing and responsive layout system;
-- editorial vs analytical density modes;
+- sports-intelligence publication + professional analysis-terminal visual thesis;
+- semantic color roles distinct from recommendation/result semantics;
+- editorial and analytical typography/density roles;
+- spacing, layout, responsive, motion, and accessibility rules;
 - reusable shell/navigation/action/status/card/table/evidence patterns;
-- loading, empty, unavailable, stale, gated, error, and correction-state requirements;
-- keyboard/focus/reduced-motion/contrast/table accessibility requirements;
-- restrained motion policy;
 - stable public URL/indexability/metadata rules;
-- public-vs-member visual relationship;
+- public/member visual relationship;
 - stable product terminology;
-- W1 implementation order and freeze criteria.
+- W1 freeze criteria.
 
-### Implemented design tokens and global interaction behavior
+### Implemented design tokens / global behavior
 
-`src/app/globals.css` now contains reusable semantic tokens for:
+`src/app/globals.css` provides the semantic token layer and shared public shell behavior, including:
 
-- background/surface/text/border roles;
-- brand/focus and semantic state colors;
-- sans/monospace roles;
-- spacing, radii, shadows, width, reading measure, and transitions.
-
-It also implements:
-
+- background/surface/text/border/brand/state tokens;
+- sans and monospace roles;
+- spacing/radius/elevation/width tokens;
 - visible `:focus-visible` treatment;
-- skip-link styling;
-- responsive public navigation that remains available instead of hiding the public IA on mobile;
-- reduced-motion handling;
-- reusable button, status-chip, card, prose, definition-list, notice, empty-state, public-section, dashboard, and publication-preview patterns.
-
-### Shared UI primitives
-
-Added/refactored reusable primitives:
-
-- `SiteHeader`;
-- `SiteFooter`;
-- `PageHeader`;
-- `StatusChip` with brand/success/warning/danger/info/neutral tones;
-- `EmptyState`;
-- `SportCard` using the semantic status primitive.
-
-The root layout now provides a global keyboard skip link to `#main-content`.
+- global skip link;
+- mobile-preserved public navigation;
+- reduced-motion support;
+- reusable editorial/public/member shell styles.
 
 ### Stable public information architecture
 
-The public navigation now uses stable semantic routes:
+Current stable routes include:
 
+- `/`;
 - `/sports`;
+- `/sports/{sport}`;
 - `/methodology`;
 - `/performance`;
 - `/membership`;
-- `/dashboard` as the member-entry shell.
+- `/dashboard` as member entry;
+- branded semantic 404 handling.
 
-Added substantive public surfaces:
-
-- `/sports` — initial sport index and shared publication rules;
-- `/methodology` — point-in-time, prediction-vs-recommendation, sealed publication, market-context, correction, settlement, and terminology architecture;
-- `/performance` — transparent no-fabricated-performance placeholder with settlement-backed reporting requirements;
-- `/membership` — identity/commerce/entitlement architecture without invented pricing;
-- branded semantic `not-found` state.
-
-Homepage, dashboard, and dynamic sport routes were refactored onto the shared W1 shell/primitives.
+Homepage, dashboard, sport shells, methodology, performance, membership, and sports index use shared W1 primitives.
 
 ### Metadata / discoverability prerequisites
 
-Added `src/lib/site.ts` as central site and metadata authority for:
+`src/lib/site.ts` centralizes:
 
-- site name/tagline/description;
-- site URL resolution;
+- site identity;
+- metadata base;
 - canonical URLs;
 - Open Graph basics;
-- explicit robots/indexing intent.
+- robots/indexing intent.
 
-Current indexability policy is conservative:
+Conservative current indexability policy:
 
 - substantive public architecture pages may be indexable;
-- `/performance` is `noindex` until settlement-backed performance authority exists;
-- `/dashboard` is `noindex`;
-- current sport pages are `noindex` while they remain publication-empty shells.
+- `/performance` remains `noindex` until W8 produces settlement-backed authority;
+- `/dashboard` remains `noindex`;
+- sport pages remain `noindex` while publication-empty.
 
-This avoids manufacturing thin search surfaces or fake authority before the data contracts exist.
+## W1 analytical UI checkpoint — implemented
 
-### W1 source-level test expansion
+Added `docs/architecture/ANALYTICAL_UI_CONTRACT_V1.md` as the detailed interface authority for analytical presentation.
 
-The Node test baseline now checks:
+It explicitly separates:
 
-- root language;
-- skip-link presence;
-- labeled primary navigation;
-- accessible brand link;
-- stable public IA in semantic navigation;
-- `#main-content` target across major surfaces;
-- no empty hash links;
-- focus-visible treatment;
-- reduced-motion support;
-- central canonical/Open Graph/robots metadata primitives;
-- `noindex` policy for thin/private-adjacent surfaces;
-- stable public route files;
-- preserved W0 Node/runtime/sport-registry/no-SQLite contracts.
+1. sports/domain state;
+2. interface/data-delivery state;
+3. server authorization state.
 
-### CI evidence
+This prevents later mistakes such as treating PASS as generic success, AVOID as generic error, gated rendering as authorization, or corrected data as a silent overwrite.
 
-The first post-refactor CI run correctly failed at lint because two JSX apostrophes violated `react/no-unescaped-entities`. The code was corrected rather than suppressing the rule.
+### New reusable analytical primitives
 
-GitHub Actions CI #45 / run `33724238548` then completed successfully on commit:
+Implemented:
 
-`5def4cf820d197ca4ad263c2c4603b944e6dd253`
+- `MetricBlock` — compact metric/value/context presentation with tabular-numeral behavior;
+- `EvidencePanel` — semantic `dl`/`dt`/`dd` publication/provenance slots;
+- `DataTable` — captioned semantic table, column/row header contracts, focusable horizontal overflow, explicit empty rows, and narrow-screen information preservation;
+- `DataStatePanel` — controlled loading/empty/unavailable/stale/gated/error/corrected states.
 
-The clean checkout passed install, audit, repository formatting, TypeScript, ESLint, tests, and production build.
+### Controlled data-state system
+
+W1 now implements explicit UI states for:
+
+- loading;
+- empty;
+- unavailable;
+- stale;
+- gated;
+- error;
+- corrected.
+
+Every state exposes textual meaning and a non-color marker. Loading uses structural skeletons instead of plausible numbers and honors `prefers-reduced-motion`.
+
+### Analytical responsive styling
+
+`src/app/w1-analytics.css` provides:
+
+- four/two/one-column metric density progression;
+- three/two/one-column state progression;
+- stacked evidence rows on narrow screens;
+- non-destructive horizontally scrollable data tables;
+- tabular numerals;
+- explicit focus treatment;
+- reduced-motion-safe loading skeletons.
+
+### Performance shell demonstration policy
+
+`/performance` remains `noindex` and still contains no fabricated performance record.
+
+The W1 shell now demonstrates the contract only with explicit non-values such as:
+
+- `Not published`;
+- `Not available`;
+- `Awaiting sealed publication`;
+- a defined performance table with zero rows.
+
+No fake win rate, ROI, odds, probabilities, records, or settlement data were introduced.
+
+## W1 test expansion
+
+### Source/contract tests
+
+The Node test suite now verifies:
+
+- controlled W1 data-state coverage;
+- loading `aria-busy` behavior;
+- semantic table/caption/column/row header source contracts;
+- focusable table overflow;
+- evidence definition-list semantics;
+- tabular-numeral styling;
+- reduced-motion loading behavior;
+- non-fabricated Performance-shell examples;
+- existing metadata/indexability/public-route/W0 boundary contracts.
+
+GitHub Actions CI #56 / run `33735201562` passed on commit:
+
+`ad9592861da261ab6e0bc07ea3819106872d0962`
+
+### Rendered production verification — implemented, final proof pending
+
+Added `scripts/check-rendered-pages.mjs` and `npm run test:rendered`.
+
+The script starts the **built production Next.js server** directly under Node and verifies actual HTTP-rendered output for:
+
+- document language;
+- skip-link/main landmark pairing;
+- primary navigation and stable IA links;
+- canonical URLs;
+- index/noindex policy;
+- successful public/member-adjacent route rendering;
+- rendered analytical table/caption/column-header semantics;
+- keyboard-focusable table overflow region;
+- rendered loading `aria-busy` state;
+- no fabricated percentage metrics on Performance;
+- HTTP 404 behavior and branded not-found content.
+
+`npm run verify` now includes the rendered production test after `npm run build`, and CI has a dedicated post-build rendered verification step.
+
+This is stronger than source-only inspection, but it is not being called a full browser-engine accessibility audit. Final W1 freeze still requires rendered visual/interaction review at representative viewport sizes.
+
+## CI job naming
+
+The GitHub Actions job is now gate-neutral **Repository verification** rather than the obsolete W0-specific label.
 
 ## Remaining W1 work
 
-W1 is **not** a freeze candidate yet. Remaining work includes:
+W1 is **not** a freeze candidate yet. Remaining work is now narrowed to:
 
-1. implement a formal reusable data-state primitive/system for unavailable, stale, gated, error, and correction states beyond the existing empty/notice examples;
-2. define reusable analytical metric/evidence/table primitives without inventing backend values or prematurely freezing W4 schemas;
-3. add component/browser testing appropriate to interactive UI;
-4. add browser-level accessibility automation and keyboard/focus verification rather than relying only on source inspection;
-5. verify responsive behavior at representative desktop/tablet/mobile viewport sizes;
-6. verify focus/contrast/touch-target behavior against the actual rendered UI;
-7. refine public/member shell composition after real browser review;
-8. update the CI job label from the historical `W0 verification` wording to a gate-neutral repository verification name;
-9. run the full local W1 verification from the maintainer checkout after pulling the completed W1 pass;
-10. obtain clean CI on the final W1 candidate commit;
-11. perform a formal W1 freeze review and create a durable W1 freeze record.
+1. obtain a clean CI run on the current rendered-verification implementation and correct any real rendered-output defects it finds;
+2. perform desktop/tablet/mobile rendered visual review of the public shell and analytical primitives;
+3. verify keyboard focus order, focus visibility, touch targets, overflow usability, and contrast against the actual rendered UI;
+4. decide whether the current server-rendered integration coverage is sufficient for the present mostly-static shell or whether a browser-engine automation dependency is justified before freeze; document that decision explicitly;
+5. run final local `npm ci`, `npm audit --audit-level=high`, and `npm run verify` from the maintainer checkout;
+6. confirm clean local Git status and no generated-authority drift;
+7. obtain clean CI on the final W1 candidate commit;
+8. perform formal W1 freeze review and create a durable W1 freeze record.
 
-W1 will not freeze merely because the pages look polished.
+W1 will not freeze merely because the pages look polished or because source tests pass.
 
 ## Cross-gate dependencies
 
