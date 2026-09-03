@@ -2,20 +2,217 @@
 
 Material repository changes are logged here in chronological order. Architecture decisions that constrain future work also receive an ADR.
 
+## 2026-09-03 — W1 analytical UI + rendered production verification checkpoint
+
+### Scope completed
+
+Continued W1 from the first design-system/public-shell checkpoint and implemented the reusable analytical presentation layer required before Daily-MLB, Daily-NFL, and Daily-NCAAF publications are connected.
+
+The work deliberately defines interface roles without inventing backend values or prematurely freezing W4/W8 semantics.
+
+### Analytical architecture authority
+
+Added `docs/architecture/ANALYTICAL_UI_CONTRACT_V1.md`.
+
+The contract separates three categories that must not be conflated:
+
+1. sports/domain state;
+2. interface/data-delivery state;
+3. server authorization state.
+
+Explicit decisions:
+
+- PASS is not generic green success UI;
+- AVOID is not generic red error UI;
+- gated rendering is explanatory only and is not authorization;
+- empty and unavailable are distinct states;
+- stale content must not silently appear current;
+- corrected content is a provenance/version state rather than a silent overwrite or generic failure;
+- shared presentation primitives must preserve sport-native semantics instead of forcing false equivalence.
+
+### New reusable primitives
+
+Added:
+
+- `src/components/metric-block.tsx`;
+- `src/components/evidence-panel.tsx`;
+- `src/components/data-table.tsx`;
+- `src/components/data-state-panel.tsx`.
+
+`MetricBlock` provides compact analytical metric/value/context presentation with tabular-numeral styling.
+
+`EvidencePanel` uses semantic `dl` / `dt` / `dd` structure for publication time, cutoff, version, correction, replay/provenance, and later settlement slots.
+
+`DataTable` provides:
+
+- semantic `table` structure;
+- caption support;
+- `thead` / `tbody`;
+- column-header `scope="col"` source contract;
+- row-header `scope="row"` source contract for populated rows;
+- focusable horizontal overflow region;
+- column descriptions;
+- explicit empty-row behavior;
+- information-preserving narrow-screen behavior rather than deleting critical columns.
+
+`DataStatePanel` defines controlled states for:
+
+- loading;
+- empty;
+- unavailable;
+- stale;
+- gated;
+- error;
+- corrected.
+
+Every state includes textual meaning plus a non-color marker. Loading uses structural skeletons rather than plausible sports numbers.
+
+### Analytical styling
+
+Added `src/app/w1-analytics.css` and loaded it from the root layout.
+
+Implemented:
+
+- metric grid scaling from four columns to two to one;
+- state grid scaling from three columns to two to one;
+- stacked evidence rows on compact layouts;
+- horizontally scrollable/focusable analytical tables;
+- tabular numerals;
+- explicit analytical focus behavior;
+- reduced-motion-safe loading skeletons.
+
+The skeleton animation becomes static under `prefers-reduced-motion`.
+
+### Performance-shell contract demonstration
+
+Refactored `/performance` to exercise W1 analytical primitives while preserving the no-fabricated-data rule.
+
+The page remains `noindex` and uses only explicit non-values such as:
+
+- `Not published`;
+- `Not available`;
+- `Awaiting sealed publication`;
+- an empty performance ledger with defined columns and zero rows.
+
+No fake probabilities, odds, win rates, ROI, records, settlement outcomes, or historical claims were introduced.
+
+The page now demonstrates:
+
+- analytical metric slots;
+- evidence/provenance slots;
+- table semantics;
+- loading/empty/unavailable/stale/gated/error/corrected state patterns.
+
+### Source-contract test expansion
+
+Added `test/w1-analytical-primitives.test.mjs`.
+
+The test suite now checks:
+
+- all controlled W1 data states exist;
+- loading exposes `aria-busy`;
+- data-table semantic structure exists;
+- table overflow is keyboard focusable;
+- evidence uses definition-list semantics;
+- analytical numeric styling uses tabular numerals;
+- loading skeletons honor reduced motion;
+- Performance exercises the state contracts without fabricated percentage/ROI data.
+
+GitHub Actions CI #56 / run `33735201562` passed on commit:
+
+`ad9592861da261ab6e0bc07ea3819106872d0962`
+
+### Production-rendered integration verification
+
+Added `scripts/check-rendered-pages.mjs` and `npm run test:rendered`.
+
+The test launches the built Next.js production server directly with Node and inspects actual HTTP-rendered output rather than only source text.
+
+It verifies:
+
+- `<html lang="en">` output;
+- skip-link to `#main-content` pairing;
+- main landmark target;
+- labeled primary navigation;
+- stable navigation links;
+- canonical URLs;
+- index/noindex policy;
+- public/member-adjacent route HTTP success;
+- rendered analytical table and caption;
+- rendered column-header semantics;
+- keyboard-focusable table overflow region;
+- rendered loading `aria-busy` state;
+- absence of fabricated percentage metrics on Performance;
+- HTTP 404 status and branded not-found content.
+
+`npm run verify` now runs:
+
+1. repository format check;
+2. TypeScript;
+3. ESLint;
+4. Node tests;
+5. production Next.js build;
+6. rendered production-page verification.
+
+CI now includes a dedicated `Verify rendered production pages` step after the build.
+
+The server harness was adjusted to launch Next directly under `process.execPath` rather than via `npm run start`, avoiding unnecessary child-process/orphan behavior and improving Windows/Linux parity.
+
+### CI proof
+
+GitHub Actions CI #66 / run `33735782096` completed successfully on commit:
+
+`0ef7aa943ffede0c8e232f695994e96e59fe0f00`
+
+Every repository-verification step passed:
+
+- checkout;
+- Node setup;
+- `npm ci`;
+- high/critical dependency audit;
+- repository formatting;
+- TypeScript;
+- ESLint;
+- Node tests;
+- production Next.js build;
+- rendered production-page verification.
+
+### Agent/CI handoff updates
+
+Updated `CODEX_START_HERE.md` so agents must read the design-system and analytical-UI architecture and must run `npm run test:rendered` as part of verification.
+
+The CI job name is now gate-neutral `Repository verification` rather than the obsolete `W0 verification` label.
+
+### Gate decision
+
+W1 remains **NOT READY** for freeze.
+
+The major implementation work is now present. Remaining W1 work is primarily actual rendered/manual proof:
+
+- desktop/tablet/mobile visual review;
+- keyboard focus-order and focus-visibility review;
+- touch-target review;
+- table overflow usability review;
+- contrast review against rendered UI;
+- explicit decision on whether a browser-engine automation dependency is proportionate for the current mostly-static W1 shell;
+- final maintainer-local `npm ci`, audit, full `npm run verify`, and clean Git status;
+- final clean CI candidate;
+- W1 freeze record.
+
 ## 2026-09-02 — W1 design system / semantic public shell checkpoint
 
 ### Design-system authority
 
 Added `docs/architecture/DESIGN_SYSTEM_V1.md` to define W1 as a reusable product-system pass rather than one-off page styling.
 
-The working design system now documents:
+The design system documents:
 
 - modern sports-intelligence publication + professional analysis-terminal visual thesis;
 - brand yellow versus semantic-state color roles;
 - typography, spacing, density, layout, responsive, and motion rules;
 - reusable shell/navigation/action/status/card/table/evidence patterns;
 - loading, empty, unavailable, stale, gated, error, and correction requirements;
-- accessibility requirements including visible focus, keyboard use, reduced motion, touch targets, non-color status cues, and future browser/component coverage;
+- visible focus, keyboard use, reduced motion, touch targets, non-color status cues, and future browser/component coverage;
 - stable public URL, canonical, metadata, and conservative indexability policy;
 - stable terminology for model probability, market/implied probability, Recommendation Gate, publication time, data cutoff, settlement, and corrections.
 
@@ -23,99 +220,84 @@ The working design system now documents:
 
 Added/refactored:
 
-- central semantic CSS token layer in `src/app/globals.css`;
+- semantic CSS token layer in `src/app/globals.css`;
 - global skip link and `#main-content` targets;
 - visible `:focus-visible` styling;
 - reduced-motion handling;
-- responsive public navigation that remains available on compact/mobile layouts;
+- responsive public navigation preserved on compact/mobile layouts;
 - `SiteFooter`;
 - `PageHeader`;
 - semantic `StatusChip` variants;
 - reusable `EmptyState`;
 - `SportCard` onto the shared status system;
-- central `src/lib/site.ts` site/metadata helper.
+- central `src/lib/site.ts` metadata helper.
 
 ### Stable public information architecture
 
-Added real semantic routes rather than relying only on homepage anchors:
+Added stable routes:
 
 - `/sports`;
 - `/methodology`;
 - `/performance`;
 - `/membership`.
 
-Also added a branded semantic `not-found` page and refactored the homepage, dashboard, and dynamic sport pages onto the W1 shell.
+Also added branded 404 handling and refactored homepage, dashboard, and dynamic sport pages onto the shared W1 shell.
 
-The new public pages intentionally avoid invented model formulas, pricing, performance, picks, subscriber data, or access state.
+No invented model formulas, pricing, performance, picks, subscriber data, or access state were added.
 
 ### Discoverability/indexability behavior
 
-The central metadata helper now establishes canonical URLs, Open Graph basics, and explicit robots intent.
+The metadata helper centralizes canonical URLs, Open Graph basics, and robots intent.
 
-Current conservative policy:
+Conservative policy:
 
-- `/performance` is `noindex` until W8 produces settlement-backed public performance authority;
+- `/performance` is `noindex` until W8 produces settlement-backed authority;
 - `/dashboard` is `noindex`;
-- dynamic sport pages remain `noindex` while they are publication-empty shells;
-- substantive public architecture pages can remain crawlable/indexable.
-
-This preserves ADR-0002 without creating thin or fabricated authority surfaces.
+- dynamic sport pages are `noindex` while publication-empty;
+- substantive public architecture pages may remain indexable.
 
 ### Test expansion
 
-Expanded the Node source/contract tests to cover:
+Expanded Node source/contract tests for:
 
-- skip-link behavior and main target;
-- semantic primary navigation and stable IA;
-- focus-visible and reduced-motion CSS contracts;
-- all major W1 public surfaces;
-- central canonical/Open Graph/robots metadata primitives;
-- noindex policy for thin/private-adjacent pages;
-- continued W0 Node/runtime/sport-registry/no-direct-SQLite guarantees.
+- skip-link/main pairing;
+- semantic primary navigation;
+- stable public IA;
+- focus-visible and reduced-motion CSS;
+- major W1 public surfaces;
+- canonical/Open Graph/robots primitives;
+- noindex policy;
+- preserved W0 Node/runtime/sport-registry/no-direct-SQLite boundaries.
 
-### CI feedback and correction
-
-The first full W1 refactor run failed at ESLint on two unescaped JSX apostrophes in the new Membership and Methodology copy. The lint rule was not disabled or bypassed; those two copy lines were corrected.
+The first full W1 refactor run failed on two `react/no-unescaped-entities` lint errors in Membership and Methodology copy. The rule was not disabled; the two lines were corrected.
 
 GitHub Actions CI #45 / run `33724238548` then completed successfully on commit:
 
 `5def4cf820d197ca4ad263c2c4603b944e6dd253`
 
-The clean checkout passed:
-
-1. locked dependency installation;
-2. high/critical audit gate;
-3. repository formatting;
-4. TypeScript;
-5. ESLint;
-6. Node tests;
-7. production Next.js build.
-
 ### Gate decision
 
-W1 remains **NOT READY** for freeze.
-
-Next W1 work is the formal data-state system, analytical metric/evidence/table primitives, rendered responsive review, browser/component accessibility automation, and final local + CI proof.
+W1 remained open for analytical primitives, rendered accessibility/integration proof, responsive review, and final freeze evidence.
 
 ## 2026-09-02 — W0 formally frozen; W1 activated
 
 ### Final local reproduction
 
-After the unsuccessful ESLint 10 experiment, the maintainer restored `package.json` and `package-lock.json` to repository authority, pulled `main`, and ran the final W0 reproduction on the exact committed dependency graph.
+After the unsuccessful ESLint 10 experiment, the maintainer restored `package.json` and `package-lock.json` to repository authority, pulled `main`, and ran the final W0 reproduction on the exact committed graph.
 
 Evidence:
 
-- `npm ci` completed successfully under Node v24.11.1;
+- `npm ci` passed under Node v24.11.1;
 - `npm audit --audit-level=high` reported 0 vulnerabilities;
-- `npm ls` confirmed the committed lint graph: `eslint@9.39.5`, `eslint-config-next@16.3.3`, `eslint-plugin-react@7.37.5`;
+- `npm ls` confirmed `eslint@9.39.5`, `eslint-config-next@16.3.3`, `eslint-plugin-react@7.37.5`;
 - `npm run verify` passed end to end;
-- repository format checks passed for 31 text files;
+- repository format checks passed;
 - TypeScript passed;
-- ESLint passed on the committed compatible stack;
+- ESLint passed;
 - Node tests passed 9/9;
-- production Next.js build passed and generated `/`, `/dashboard`, `/sports/mlb`, `/sports/nfl`, and `/sports/ncaaf` plus framework routes;
-- the previous parent-directory Turbopack root warning was absent;
-- final `git status` reported `nothing to commit, working tree clean` and the branch up to date with `origin/main`.
+- production Next.js build passed;
+- the parent-directory Turbopack warning was absent;
+- `git status` was clean and up to date with `origin/main`.
 
 ### Matching CI proof
 
@@ -123,214 +305,149 @@ GitHub Actions CI #18 / run `33722166331` completed successfully on exact eviden
 
 `c0bd7fa9bc48e96d4c8b7a12ccd68f2b2aec8084`
 
-This gives W0 matching local and clean-checkout CI proof on the same committed repository state.
-
 ### Freeze decision
 
-W0 — Repository & engineering foundation is **FROZEN**.
+W0 — Repository & engineering foundation was formally **FROZEN**.
 
-Added `docs/status/W0_FREEZE_2026-09-02.md` as the durable freeze record containing:
-
-- exact evidence commit and CI run;
-- local reproduction evidence;
-- ESLint 10 compatibility exception;
-- frozen W0 capabilities;
-- deliberately deferred later-gate work;
-- W1 handoff constraints.
-
-Updated `docs/status/WEBSITE_STATUS.md` to make W1 the active gate.
-
-### W1 handoff
-
-W1 — Design system, semantic public shell & discoverability prerequisites is now active.
-
-W1 inherits all W0 invariants, especially the sealed publication boundary, no-direct-pipeline-database rule, server-side authorization principle, no-fabricated-data rule, immutable evidence/replay direction, CI requirements, and documentation discipline.
-
-W1 must add the complete reusable design-system/public-shell layer, responsive behavior, semantic/canonical/metadata primitives, representative application states, and browser/component accessibility coverage before its own freeze review.
+Added `docs/status/W0_FREEZE_2026-09-02.md` containing the evidence commit/run, local reproduction, ESLint compatibility exception, frozen capabilities, deferred work, and W1 handoff.
 
 ## 2026-09-02 23:05 PDT — W0 CI passed; ESLint 10 compatibility exception recorded
 
 ### CI evidence
 
-GitHub Actions CI run #9 completed successfully on `main` at commit `af22c9cef6f98a238392d4d0de1b6a173311a506` from a clean checkout using the committed lockfile. The workflow passed `npm ci`, high/critical audit gating, format checks, TypeScript, ESLint, Node smoke tests, and the production Next.js build.
+A clean GitHub Actions run passed from the committed lockfile after W0 hardening.
 
 ### ESLint 10 migration attempt
 
-The maintainer tested `eslint@10.9.0` locally instead of leaving the ESLint 9 support warning uninvestigated.
+The maintainer tested `eslint@10.9.0` instead of leaving the support warning uninvestigated.
 
 Results:
 
-- npm emitted peer-resolution override warnings during the ESLint 10 install;
-- `npm audit --audit-level=high` still reported 0 vulnerabilities;
-- formatting and TypeScript checks passed;
+- npm emitted peer-resolution override warnings;
+- audit still reported 0 vulnerabilities;
+- formatting and TypeScript passed;
 - all 9 Node smoke tests passed;
-- the production Next.js build passed and the prior parent-lockfile/Turbopack root warning was absent;
-- `npm run lint` failed while loading `react/display-name` because the React ESLint plugin uses a rule-context API that changed in ESLint 10;
-- `npm run verify` therefore failed at the lint step as expected.
-
-### Upstream compatibility finding
-
-Current Next.js 16.3.3 `eslint-config-next` depends on `eslint-plugin-react`. The current React plugin line advertises ESLint peer support through ESLint 9 rather than ESLint 10. The actual local crash confirms that forcing the major would produce a broken lint gate.
+- production build passed;
+- lint failed inside `eslint-plugin-react` while loading `react/display-name` because the plugin used a pre-ESLint-10 rule-context API.
 
 Decision:
 
-- retain the committed ESLint 9-compatible stack temporarily;
-- do not use `--force`, `--legacy-peer-deps`, or an unproven compatibility shim solely to claim ESLint 10 support;
-- treat this as a documented **dev-tooling compatibility exception**, not as a production runtime exception;
-- keep Dependabot enabled and re-evaluate when the Next.js/React lint chain publishes verified ESLint 10 compatibility, and at minimum before W12 launch freeze.
-
-### Remaining W0 step
-
-The maintainer must discard only the uncommitted ESLint 10 package/lockfile experiment, run `npm ci`, then `npm audit --audit-level=high` and `npm run verify` on the exact committed graph. A clean `git status` plus that passing local reproduction will permit the W0 freeze review.
+- retain the ESLint 9-compatible stack temporarily;
+- do not use `--force`, `--legacy-peer-deps`, or an unproven shim;
+- treat it as a dev-tooling compatibility exception, not a production runtime exception;
+- keep Dependabot enabled;
+- re-evaluate when the Next.js/React lint chain is verified ESLint-10-compatible and at minimum before W12 freeze.
 
 ## 2026-09-02 16:28 PDT — SEO + GEO/AEO discoverability architecture added
 
 ### Architecture decision
 
-SEO plus generative/answer-engine discoverability is now a first-class cross-cutting website architecture requirement rather than a post-launch marketing task.
+SEO plus generative/answer-engine discoverability became a first-class cross-cutting website architecture requirement rather than post-launch marketing cleanup.
 
 Added:
 
 - `docs/architecture/SEO_GEO_DISCOVERABILITY_V1.md`;
 - `docs/decisions/ADR-0002-discoverability-is-core-architecture.md`.
 
-### Core strategy
+### Strategy
 
-The website will pursue discoverability through unique, useful, primary-source Daily Line material rather than speculative LLM-ranking tricks. The long-term public authority corpus can include approved methodology, glossary, research/model-audit content, canonical pre-event prediction evidence, results, corrections, and reproducible performance aggregates derived from immutable website publication evidence.
+The website will pursue discoverability through useful primary-source Daily Line material, semantic/crawlable HTML, stable URLs, metadata, internal linking, and reproducible evidence rather than speculative LLM-ranking tricks.
 
-The strategy explicitly rejects:
+Explicitly rejected:
 
 - machine-only doorway pages;
 - keyword stuffing;
-- mass-generated permutations for every possible AI/search query;
-- fabricated reviews, citations, ratings, performance, or external authority;
-- making paid/licensed data public solely for crawler access;
-- treating `llms.txt` or another AI-specific text file as a required/ranking-authoritative mechanism without a later evidence review;
-- assuming search-discovery crawler controls and provider model-training controls are the same policy decision.
+- mass-generated query permutations;
+- fabricated reviews/citations/ratings/performance;
+- publishing licensed/member data solely for crawler access;
+- assuming `llms.txt` or another AI-specific file is ranking-authoritative without evidence;
+- treating search-discovery crawler controls and model-training controls as the same policy.
 
-### Cross-gate integration
+### Cross-gate ownership
 
-Updated `docs/architecture/WEBSITE_ARCHITECTURE_V1.md` so discoverability prerequisites are carried before W9:
+- W1: semantic public IA, metadata/canonical primitives, evidence presentation prerequisites;
+- W4: immutable fields needed for replayable public-safe projections;
+- W5/W6: stable metric/entity terminology;
+- W7: canonical/indexing and HTML companion strategy for artifacts;
+- W8: settlement/performance semantics before broad public claims;
+- W9: dedicated SEO/GEO/AEO implementation and measurement;
+- W12: production crawl/index and private-surface protection proof.
 
-- W1 now owns semantic/crawlable public information architecture, metadata primitives, canonical public URL conventions, and reusable evidence presentation patterns;
-- W4 must preserve immutable fields needed for approved replayable public-safe evidence projections;
-- W5/W6 must preserve stable metric/entity terminology across public and member surfaces;
-- W7 must define canonical/indexing behavior and HTML companion strategy for artifacts where binaries alone are a weak public source surface;
-- W8 must freeze reproducible settlement/performance semantics before broad discoverable performance claims;
-- W9 is now explicitly **SEO + GEO/AEO discoverability, content & analytics** and owns crawler policy, sitemaps, canonical/redirect behavior, metadata, supported structured data, internal linking, public authority/evidence surfaces, search-console/webmaster integration, AI/search referral instrumentation, benchmark-query observability, and provider-guidance validation;
-- W12 must prove production crawl/index behavior and continued protection of private/member surfaces.
-
-### Repository handoff/status integration
-
-Updated:
-
-- `README.md` with the discoverability architecture and revised gate names/responsibilities;
-- `CODEX_START_HERE.md` so coding agents must read the new architecture/ADR and preserve the cross-gate requirements;
-- `docs/status/WEBSITE_STATUS.md` with the accepted decision, completed documentation work, and the new W1/W4 requirements.
-
-The discoverability architecture does not add a new W0 implementation blocker. It defines authority for future gate design. W1 begins the prerequisites; W9 owns the dedicated implementation/freeze pass; W12 owns production validation.
-
-### External-guidance baseline checked
-
-The architecture was checked against current official provider guidance on 2026-09-02 before being committed.
-
-Relevant current guidance included:
-
-- OpenAI: public sites can appear in ChatGPT search; `OAI-SearchBot` access matters for content to be included in summaries/snippets; search placement is not guaranteed; OpenAI documents search discovery and `GPTBot` training controls separately;
-- Google Search: ordinary SEO fundamentals remain foundational for AI Overviews/AI Mode; no special AI-specific schema or machine-readable file is required; Google's 2026 generative-AI guidance emphasizes unique, non-commodity, people-first content and warns against GEO/AEO gimmicks and scaled low-value query targeting.
-
-These external rules are not frozen repository truth. W9 implementation and W12 launch review must revalidate current official documentation because crawler names, reporting, and product behavior can change.
+Current provider guidance was checked during this architecture pass, but W9/W12 must revalidate it because external behavior changes.
 
 ## 2026-09-02 — W0 repository/CI hardening
 
-### Repository authority finalized from local proof
+### Repository authority
 
-- committed the repository-local `package-lock.json` generated by the successful Node 24 install;
-- committed the exact `tsconfig.json` and `next-env.d.ts` changes generated by Next.js during the first production build.
+Committed:
 
-### Verification infrastructure added
+- repository-local `package-lock.json`;
+- Next.js-generated `tsconfig.json` changes;
+- refreshed `next-env.d.ts`.
 
-- added `npm test`, `npm run format:check`, and aggregate `npm run verify` scripts without changing the dependency graph;
-- added dependency-free repository-format verification;
-- added Node 24 built-in test-runner smoke tests for runtime/script contracts, initial sport registration, and the rule that the website must not introduce direct SQLite pipeline access;
-- added source-level accessibility smoke checks for language declaration, navigation labeling, main landmarks, accessible brand naming, and empty-hash links;
-- added GitHub Actions CI using exact Node v24.11.1 and the committed lockfile;
-- CI performs `npm ci`, high/critical audit gating, format checks, TypeScript, ESLint, tests, and a production Next.js build;
-- GitHub Actions dependencies are pinned by immutable commit SHA rather than floating tags;
-- added weekly Dependabot proposals for npm and GitHub Actions.
+### Verification infrastructure
+
+Added:
+
+- `npm test`;
+- `npm run format:check`;
+- aggregate `npm run verify`;
+- dependency-free repository-format checks;
+- Node 24 smoke tests;
+- source accessibility checks;
+- GitHub Actions CI with exact Node v24.11.1;
+- `npm ci`, audit, format, TypeScript, ESLint, tests, and production build gates;
+- immutable GitHub Action SHA pins;
+- weekly Dependabot proposals.
 
 ### Documentation/agent operations
 
-- added `CODEX_START_HERE.md` with required reading, verification commands, and non-negotiable product boundaries;
-- added dependency/supply-chain security policy;
-- documented that install-script warnings require review rather than blind approval.
+Added:
 
-### Supported-toolchain finding
+- `CODEX_START_HERE.md`;
+- dependency/supply-chain security policy;
+- install-script review policy rather than blanket approval.
 
-The local install resolved ESLint 9.39.5 and emitted an unsupported-version warning. Upstream ESLint 9 reached end-of-life on 2026-08-06. W0 therefore remained open pending an attempted migration to a supported ESLint 10 release or a narrowly documented temporary exception if compatibility prevented migration. That migration was subsequently attempted and the compatibility exception is now documented above.
-
-### Freeze decision
-
-W0 remained **NOT READY** until a clean `main` CI run existed, the supported ESLint-major issue was resolved or documented, the local parent-lockfile/Turbopack warning was confirmed gone, and local + CI proof agreed. Clean CI has now passed; only the final local reproduction on the committed graph remains.
+W0 remained open until clean CI, parent-lock warning resolution, and the ESLint-major migration/exception review were completed.
 
 ## 2026-09-02 — W0 local proof recorded
 
-### Validation evidence from 2026-08-31 local run
-
-Environment and commands reported by the maintainer:
+The maintainer reported:
 
 - PowerShell 7.6.5;
 - Node v24.11.1;
-- dependency installation succeeded;
-- 359 packages audited with 0 vulnerabilities reported;
-- `npm run typecheck` passed;
-- `npm run lint` passed;
-- `npm run build` passed under Next.js 16.3.3 / Turbopack;
-- production output generated the home page, dashboard, and static sport routes for MLB, NFL, and NCAAF.
+- successful dependency installation;
+- 0 vulnerabilities;
+- passing typecheck;
+- passing lint;
+- passing production build;
+- generated home/dashboard/MLB/NFL/NCAAF routes.
 
-### Build-generated local changes
-
-The first successful Next.js build generated or modified repository-local build-authority files:
-
-- `package-lock.json` generated by `npm install`;
-- `tsconfig.json` updated by Next.js to include generated development route types;
-- `next-env.d.ts` refreshed by Next.js.
-
-These exact files were subsequently committed as repository authority during the hardening pass above.
-
-### Local-path warning
-
-The build also detected a separate `package-lock.json` in the parent directory outside the Git repository. This was consistent with the earlier accidental `npm` invocation from the parent directory. The parent lockfile is not website repository authority. A later production build completed without the warning after the stray parent artifact was absent.
-
-### Freeze decision at local checkpoint
-
-Local toolchain proof was satisfied, but repository reproducibility and CI proof were still required. Those controls were added in the subsequent hardening pass above.
+The first build also exposed a stray parent-directory `package-lock.json`; later builds confirmed that warning was gone after the stray artifact was absent.
 
 ## 2026-08-31 — W0 repository initialization
 
 ### Added
 
-- initial repository README and production architecture charter;
-- Next.js/React/TypeScript application scaffold;
-- initial Daily Line dark editorial/data-terminal visual direction with yellow brand accent;
-- public homepage;
-- member dashboard shell;
-- Daily-MLB, Daily-NFL, Daily-NCAAF sport registry and preview routes;
-- website architecture V1 working specification;
+- initial README and production architecture charter;
+- Next.js/React/TypeScript scaffold;
+- dark editorial/data-terminal visual direction with yellow brand accent;
+- homepage;
+- dashboard shell;
+- Daily-MLB, Daily-NFL, Daily-NCAAF registry and preview routes;
+- website architecture V1;
 - Publication Contract V1 draft;
 - ADR-0001 sealed publication boundary;
 - W0 status/freeze checklist;
-- environment example and no-secret repository rule.
+- environment example and no-secret rule.
 
-### Decisions
+### Initial decisions
 
 - website is the primary product surface;
-- Whop remains the initial commerce/membership authority, projected into website entitlements;
-- website identity is separate from commerce identity;
-- paid authorization occurs server-side;
-- sport pipelines publish sealed artifacts instead of exposing their mutable databases to the website;
-- no fabricated picks, performance records, or entitlements are used in the initial UI scaffold.
+- Whop remains initial commerce/membership authority projected into website entitlements;
+- website identity remains separate from commerce identity;
+- paid authorization is server-side;
+- sport pipelines publish sealed artifacts rather than exposing mutable databases;
+- initial UI does not fabricate picks, performance, or entitlements.
 
-### Validation status at initialization
-
-The repository was created remotely in this pass. Dependency installation/build/typecheck/lint proof had not yet been run at initialization; that proof was subsequently completed locally and recorded above.
+Initial repository creation had not yet been locally installed/built; subsequent W0 checkpoints recorded that proof.
