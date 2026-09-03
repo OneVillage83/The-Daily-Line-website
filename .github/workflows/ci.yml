@@ -57,3 +57,8 @@ jobs:
         env:
           NEXT_PUBLIC_SITE_URL: https://thedailyline.bet
         run: npm run build
+
+      - name: Verify rendered production pages
+        env:
+          NEXT_PUBLIC_SITE_URL: https://thedailyline.bet
+        run: npm run test:rendered
